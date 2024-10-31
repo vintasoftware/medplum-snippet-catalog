@@ -10,8 +10,10 @@ that are compliant with any FHIR resource and can be directly used to create and
 import { Form } from './Form';
 function MyTaskForm() {
   const handleSubmit = (formData, error) => {
-    // error is null if there are no validation errors
-    // for now we only validate required fields
+    /*
+     * error is undefined if there are not validation errors in any of the fields.
+     * For now we only validate required fields
+     */
     console.log('Form has validation errors:', error);
 
     /*
@@ -26,7 +28,16 @@ function MyTaskForm() {
     console.log('Form data:', formData);
   };
   return (
-    <Form onSubmit={handleSubmit}>
+    <Form
+      onSubmit={handleSubmit}
+      defaultData={{ owner: { reference: 'Practitioner/123' }, description: 'Default description' }}
+    >
+      {/*
+       * Form component accepts a render prop that receives the following parameters:
+       * onChange: a callback function used to update the form data
+       * defaultData: the initial value of the field, in this example it will be
+       *              the same object passed to the Form component
+       */}
       {({ onChange, defaultData }) => (
         <>
           <Form.ResourceInput
@@ -60,15 +71,26 @@ NestedField has two uses:
 ```tsx
 function CareTeamForm() {
   return (
-    <Form>
+    <Form
+      defaultData={{
+        participant: [{ member: { reference: 'Practitioner/123' }, role: { coding: [{ code: '123' }] } }],
+      }}
+    >
       {({ onChange, defaultData }) => (
         <Form.NestedField
           label="Members"
           path="participant"
           onChange={onChange}
-          defaultData={defaultData?.participant}
+          defaultData={defaultData?.participant} // notice we use defaultData here to "step" into the nested object
           repeats // if true multiple "participant" can be added
         >
+          {/*
+           * Just like the Form component, NestedField component accepts a render prop that receives
+           * the same parameters as the Form component:
+           * onChange: a callback function used to update the form data
+           * defaultData: the initial value of the nested field, in this example it will be
+           *              the list of participants passed to the Form component: [{member: ..., role: ...}]
+           */}
           {({ onChange, defaultData }) => (
             <Box>
               <Form.ResourceInput
@@ -85,7 +107,7 @@ function CareTeamForm() {
                 path="role"
                 binding="http://hl7.org/fhir/ValueSet/practitioner-role"
                 onChange={onChange}
-                // notice in some situations we need to access deeply nested data
+                // notice in some situations we will need to access deeply nested data
                 // in order to set the right defaultValue
                 defaultValue={defaultData?.role?.[0]?.coding?.[0]}
                 required
@@ -110,32 +132,45 @@ import { ResourceForm } from './Form';
 function PatientForm() {
   return (
     <ResourceForm<Patient>
-      // Optional: Provide default data to pre populate the form
-      // it can also be used to provide the default structure of a resource
-      // in case it's being created.
-      // The object can have any number of properties. Properties don't necessarily need to be
-      // represented in the form fields.
-      defaultData={{
-        resourceType: 'Patient',
-      }}
-      // Optional: Tell ResourceForm how to fetch the resource
-      // if it's not provided the defaultData will be used to populate the form
+      /*
+       * Optional: Tell ResourceForm how to fetch the resource. If fetchResource is not provided
+       * the defaultData will be used to pre populate the form.
+       */
       fetchResource={async () => {
         return medplum.readResource('Patient', 'patient-id');
       }}
-      // Optional: Transform resource data so it complies with the form field structure
-      // this is useful when the resource structure is not exactly what we want to use in the form
+      /*
+       * Optional: defaultData will be used to pre populate the form in case fetchResource is not provided.
+       * It can also be used to provide a default structure of a resource when it's being created.
+       * The object can have any set of properties and they don't necessarily need to correspond to form fields.
+       */
+      defaultData={{
+        /*
+         * by setting the resourceType we instruct ResourceForm to create a new Patient resource.
+         * The rest of the properties will be filled with the form data.
+         */
+        resourceType: 'Patient',
+      }}
+      /*
+       * Optional: Transform resource data so it complies with the form field structure.
+       * This is useful when the resource structure does not match the form field structure.
+       * Both the defaultData and the data from fetchResource will be transformed before used.
+       */
       resourceToFormData={(resource) => ({
         name: resource.name?.[0]?.given?.[0],
         birthDate: resource.birthDate,
       })}
-      // Optional: Transform form data from the form field structure to the resource structure
-      // this is useful when the form fields don't exactly match the resource structure
+      /*
+       * Optional: Transform form data in the form to the desired resource structure.
+       * This is useful when the form fields structure doesn't exactly match the resource structure.
+       */
       formDataToResource={(formData) => ({
         name: [{ given: [formData.name] }],
         birthDate: formData.birthDate,
       })}
-      // Optional: Handle successful submission
+      /*
+       * Optional: called after the resource is successfully created or updated.
+       */
       onSuccess={(patient) => {
         console.log('Patient saved:', patient);
       }}
