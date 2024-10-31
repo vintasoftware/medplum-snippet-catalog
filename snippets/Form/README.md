@@ -55,7 +55,7 @@ function MyTaskForm() {
 NestedField has two uses:
 
 1. Allowing forms with nested objects (e.g.: `{ period: { start: '2024-01-01', end: '2024-01-02' } }`)
-2. Allow creating lists of objects (e.g.: `{ tags: ['tag1', 'tag2'] }`)
+2. Allow creating lists of objects (e.g.: `{ tags: [{name: 'tag1'}, {name: 'tag2'}] }`)
 
 ```tsx
 function CareTeamForm() {
