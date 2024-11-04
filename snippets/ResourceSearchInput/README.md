@@ -16,10 +16,11 @@ interface ResourceSearchInputProps<K extends ResourceType> extends TextInputProp
 
 
 1. `resourceType` defines the Resource you want to search for;
-2. `search` defines which field is going to be used in the search call. A single field was enough for its inteded purpose, but the component could be updated to accept multiple fields;
+2. `search` defines which field is going to be used in the search call. A single field was enough for its intended purpose, but the component could be updated to accept multiple fields;
 3. `maxResults` limits how many results are shown to the user. This stops the component from rendering a large amount of data, causing slowdowns. Better results will be shown by refining the search;
 4. `minInputLength` defaults to `2`, and is used to stop the component from actually searching anything until the user has typed in 2 characters, also improving overall performance;
-5. `onSelect` is the function that will be called once a user selects an option. The developer can then use it for any purposes.
+5. `onSelect` is the function that will be called once a user selects an option. The developer can then use it for any purpose;
+6. Since it extends `TextInputProps`, any other Mantine-related prop can be used here to improve the experience (adding a label, changing the placeholder, or using css-related props, for instance).
 
 ## Basic Usage
 
