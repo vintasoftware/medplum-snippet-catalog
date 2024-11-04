@@ -72,3 +72,7 @@ const handleSelect = (selected: ExtractResource<Practitioner>) => {
   */
 }
 ```
+
+## Example (GIF)
+
+![resource-search-input](https://github.com/user-attachments/assets/8391d765-483a-473c-a30e-6f33adbf8df7)
