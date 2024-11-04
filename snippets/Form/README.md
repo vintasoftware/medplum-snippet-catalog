@@ -4,7 +4,7 @@ A flexible form component built on top of Medplum's form components with support
 The goal is make it easy to organize form fields in the shape of any desired object. By doing that it becomes easy to generate outputs
 that are compliant with any FHIR resource and can be directly used to create and update Medplum resources.
 
-https://github.com/user-attachments/assets/b6b6b718-8fda-4438-a660-1c89fc3b0a0c
+![Example video](https://github.com/user-attachments/assets/b6b6b718-8fda-4438-a660-1c89fc3b0a0c)
 
 ## Basic Usage
 
