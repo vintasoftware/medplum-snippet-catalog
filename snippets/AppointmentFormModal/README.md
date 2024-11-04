@@ -2,6 +2,8 @@
 
 A reusable modal component for creating and editing FHIR Appointment resources. Built on top of the Form component. This component allows scheduling appointments but does not uses `Schedule` and `Slot` resources so it might only be suitable for some specific use cases, use with caution or customize to your needs.
 
+![Example usage](https://github.com/user-attachments/assets/38dcc56c-9ef5-47ee-86c6-5928adcf3452)
+
 ## Basic Usage
 
 ```tsx
