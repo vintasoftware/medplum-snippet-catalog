@@ -2,6 +2,10 @@
 
 An Autocomplete that behaves differently from what's provided by default by Medplum. This component doesn't hold the selected value, but exports it through the `onSelect` prop. The value is meant to be used outside of its scope. This was made to function as a search bar.
 
+![resource-search-input](https://github.com/user-attachments/assets/8391d765-483a-473c-a30e-6f33adbf8df7)
+
+## About
+
 The component requires the following props in order to work:
 
 ```tsx
@@ -13,7 +17,6 @@ interface ResourceSearchInputProps<K extends ResourceType> extends TextInputProp
   onSelect: (selected: ExtractResource<K>) => void;
 }
 ```
-
 
 1. `resourceType` defines the Resource you want to search for;
 2. `search` defines which field is going to be used in the search call. A single field was enough for its intended purpose, but the component could be updated to accept multiple fields;
@@ -73,7 +76,3 @@ const handleSelect = (selected: ExtractResource<Practitioner>) => {
   */
 }
 ```
-
-## Example (GIF)
-
-![resource-search-input](https://github.com/user-attachments/assets/8391d765-483a-473c-a30e-6f33adbf8df7)
