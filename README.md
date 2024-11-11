@@ -4,6 +4,7 @@ A collection of reusable code snippets and components for Medplum projects.
 
 ## Available Snippets
 
+- [Bot Deploy Script](snippets/BotDeployScript)
 - [Form / ResourceForm](snippets/Form)
 - [ResourceSearchInput](snippets/ResourceSearchInput)
 - [AppointmentFormModal](snippets/AppointmentFormModal)
