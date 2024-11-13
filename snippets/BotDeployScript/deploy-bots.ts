@@ -99,11 +99,15 @@ async function uploadBots(): Promise<void> {
     process.env.DEPLOY_MEDPLUM_CLIENT_SECRET as string
   );
 
-  const profile = await medplum.getProfile();
-  const projectId = profile?.meta?.project;
+  const projectId = medplum.getProject()?.id;
 
-  // You can provide specific questionnaires to be associated with Subscriptions
-  const questionnaires: Questionnaire[] = [];
+  // Provide specific questionnaires to be associated with Subscriptions
+  const botsQuestionnaires = Array.from(new Set(BOTS.flatMap((bot) => bot.questionnaires)));
+  const questionnaires: Questionnaire[] = botsQuestionnaires
+    ? await medplum.searchResources('Questionnaire', {
+        name: botsQuestionnaires.join(','),
+      })
+    : [];
 
   const bundleData = await generateBundle();
   let transactionString = JSON.stringify(bundleData);
