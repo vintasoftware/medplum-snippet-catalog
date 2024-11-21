@@ -9,6 +9,7 @@ A collection of reusable code snippets and components for Medplum projects.
 - [ResourceSearchInput](snippets/ResourceSearchInput)
 - [AppointmentFormModal](snippets/AppointmentFormModal)
 - [GraphQL Table](snippets/GraphQLTable)
+- [UploadCoreDataPage](snippets/UploadCoreDataPage)
 
 ## Usage
 
