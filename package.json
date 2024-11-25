@@ -38,6 +38,7 @@
     "@medplum/fhirtypes": "^3.2.18",
     "@medplum/react": "^3.2.18",
     "@tabler/icons-react": "^3.21.0",
+    "mantine-react-table": "^2.0.0-beta.7",
     "react": "^18.3.1"
   }
 }

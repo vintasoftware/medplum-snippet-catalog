@@ -1,0 +1,8 @@
+.globalFilter input {
+  --input-bg: transparent;
+  --input-bd-focus: transparent;
+}
+
+.globalFilter .mantine-TextInput-root {
+  margin-inline: unset;
+}
