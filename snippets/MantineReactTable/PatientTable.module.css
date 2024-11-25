@@ -1,0 +1,22 @@
+.patientTable button {
+  --button-color: var(--mantine-color-cyan-9) !important;
+  --ai-hover: var(--ai-bg) !important;
+}
+
+.tableHeadCell > div {
+  justify-content: space-between;
+}
+
+/* There's no selector for the root MRT pagination component, so we have to use a parent selector */
+div:has(.pagination) {
+  justify-content: center;
+}
+
+.pagination > div {
+  padding: 10px 12px;
+  gap: 8px;
+
+  background: #ffffff;
+  border: 1px solid #dee2e6;
+  border-radius: 2000px;
+}
