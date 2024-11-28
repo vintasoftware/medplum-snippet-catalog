@@ -11,6 +11,7 @@ A collection of reusable code snippets and components for Medplum projects.
 - [ResourceSearchInput](snippets/ResourceSearchInput)
 - [TestSetup](snippets/TestSetup)
 - [UploadCoreDataPage](snippets/UploadCoreDataPage)
+- [Generic Questionnaire](snippets/GenericQuestionnaire)
 
 ## Usage
 

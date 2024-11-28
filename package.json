@@ -34,10 +34,15 @@
   "dependencies": {
     "@mantine/core": "^7.13.4",
     "@mantine/dates": "^7.13.4",
+    "@mantine/form": "^7.14.2",
     "@mantine/notifications": "^7.13.4",
     "@medplum/fhirtypes": "^3.2.18",
     "@medplum/react": "^3.2.18",
     "@tabler/icons-react": "^3.21.0",
-    "react": "^18.3.1"
+    "date-fns": "^4.1.0",
+    "lodash": "^4.17.21",
+    "react": "^18.3.1",
+    "react-imask": "^7.6.1",
+    "zod": "^3.23.8"
   }
 }
