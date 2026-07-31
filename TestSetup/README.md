@@ -38,6 +38,26 @@ indexStructureDefinitionBundle(readJson('fhir/r4/profiles-resources.json') as Bu
 indexStructureDefinitionBundle(readJson('fhir/r4/profiles-medplum.json') as Bundle);
 ```
 
+## Tests
+
+This snippet has its own tests in [`__tests__`](__tests__), run with `npm test` from the repository root. They exist because the setup fails *silently* when it is wrong — searches return zero results rather than raising — so a regression is easy to ship and hard to notice.
+
+| File | Protects |
+| ---- | -------- |
+| `searchParameters.test.ts` | filtering actually filters, across string, token, date, reference and choice-of-type parameters, plus the negative case |
+| `moduleScopeFixtures.test.ts` | the index is in place before a test file's module body runs, not just before its hooks |
+| `structureDefinitions.test.ts` | `MockClient` still indexes structure definitions on its first write, which is the assumption that lets `test.setup.ts` skip them |
+
+The suite was checked by mutation rather than just by passing:
+
+| Break | Caught by |
+| ----- | --------- |
+| move the assignment back inside `beforeAll` | `moduleScopeFixtures.test.ts` (and only that file) |
+| drop `setupFiles` from the Vitest config | 8 of 11 tests |
+| drop `globalSetup` from the Vitest config | all 3 files, with the actionable error message |
+
+Verified on Vitest 3.2.7 with `pool: 'forks'` and `pool: 'threads'`, `isolate` both true and false.
+
 ## Requirements
 
 - Vitest 3+ (`TestProject` and `project.provide` come from `vitest/node`).
