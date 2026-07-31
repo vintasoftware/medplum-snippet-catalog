@@ -68,6 +68,18 @@ export default mergeConfig(
 );
 ```
 
-Both are required. `globalSetup` alone builds the index in a process the tests never see; `setupFiles` alone has nothing to inject.
+Both are required. `globalSetup` alone builds the index in a process the tests never see; `setupFiles` alone has nothing to inject and fails fast with a message telling you so.
 
-`test.setup.ts` imports `beforeAll` and `inject` explicitly, so it works whether or not `test.globals` is enabled.
+`test.setup.ts` imports `inject` explicitly, so it works whether or not `test.globals` is enabled. Verified on Vitest 3.2.7 with `pool: 'forks'` and `pool: 'threads'`, `isolate` both true and false.
+
+### Why the assignment is not inside `beforeAll`
+
+Vitest runs setup files once per test file, in the worker, so no per-test wiring is needed. But a test file's own module body is evaluated *after* the setup file's module body and *before* any `beforeAll` hook the setup file registered. Assigning inside `beforeAll` therefore breaks fixtures built at module scope:
+
+```ts
+const medplum = new MockClient();
+await medplum.createResource({ resourceType: 'Patient', name: [{ family: 'Xu' }] });
+const preloaded = await medplum.searchResources('Patient', 'family=Xu'); // 0 results
+```
+
+Doing it at module scope covers both cases, which is why `test.setup.ts` has no hook at all.
