@@ -6,24 +6,37 @@ These files configure the testing environment for Medplum projects. They ensure 
 
 The setup is split in two:
 
-| File                  | Runs                                 | Does                                                                       |
-| --------------------- | ------------------------------------ | -------------------------------------------------------------------------- |
-| `test.globalSetup.ts` | once, in the Vitest main process     | polyfills `WebSocket`, indexes every bundle, shares the search parameter index |
-| `test.setup.ts`       | once per test worker                 | picks up the shared index, indexes the structure definitions                |
+| File                  | Runs                             | Does                                                             |
+| --------------------- | -------------------------------- | ---------------------------------------------------------------- |
+| `test.globalSetup.ts` | once, in the Vitest main process | polyfills `WebSocket`, indexes the bundles, shares the search parameter index |
+| `test.setup.ts`       | once per test worker             | picks up the shared index                                        |
 
 > [!IMPORTANT]
 > Make sure all `@medplum/*` packages are using the same version to avoid compatibility issues.
 
 ## Why two files
 
-`indexStructureDefinitionBundle` and `indexSearchParameterBundle` write to **two separate module-level stores** inside `@medplum/core`:
+`indexSearchParameterBundle` populates `globalSchema.types`, a `Record<string, { searchParams, searchParamsDetails }>` of plain JSON. That is what `MockClient` search matching reads — with it missing, a filter like `family=Jones` or `birthdate=1990-05-15` silently matches nothing.
 
-- `globalSchema.types` — a `Record<string, { searchParams, searchParamsDetails }>` of plain JSON. This is what `MockClient` search matching reads.
-- an internal type store (`DATA_TYPES` in `typeschema/types.ts`) holding parsed `InternalTypeSchema` objects, used by FHIRPath property traversal and `validateResource`.
+A Vitest `globalSetup` runs in the main process, while tests run in workers with their own module registry, so module-level state does not propagate on its own. But because `globalSchema.types` is plain data, it can be handed across with `project.provide` / `inject`, which is what these two files do. Each worker then starts with a complete search parameter index without re-reading or re-parsing the ~2.5 MB of search parameter bundles.
 
-A Vitest `globalSetup` runs in the main process, while tests run in workers with their own module registry, so neither store propagates on its own. `globalSchema.types` is plain data and can be passed across with `project.provide` / `inject`, which saves each worker from re-reading and re-indexing the ~2.5 MB of search parameter bundles. The internal type store is not serializable, so `test.setup.ts` still indexes the structure definitions per worker.
+## Why structure definitions are not indexed
 
-If your tests only exercise search matching and never touch validation or choice-of-type (`value[x]`) elements, you can drop the `indexStructureDefinitionBundle` calls from `test.setup.ts` — `profiles-resources.json` alone is ~35 MB, so it is by far the most expensive part of the setup.
+`indexStructureDefinitionBundle` fills a second, module-private store inside `@medplum/core` (`DATA_TYPES` in `typeschema/types.ts`) that `provide` cannot reach. It is deliberately **not** called in `test.setup.ts`, because `MockClient` indexes those bundles itself on its first write. Adding an explicit call only moves the same ~35 MB parse of `profiles-resources.json` earlier.
+
+Search matching does not depend on that store at all. When it is empty, FHIRPath property traversal falls back to a schema-less path that probes `value` plus each known property type, so choice-of-type elements such as `value[x]` and `effective[x]` still resolve to the correct type.
+
+The one thing that does depend on it is validation. Calling `validateResource` before any resource has been created throws `Unknown data type: <ResourceType>`. If a test needs validation without touching `MockClient` first, index the bundles in that test:
+
+```ts
+import { indexStructureDefinitionBundle } from '@medplum/core';
+import { readJson } from '@medplum/definitions';
+import { Bundle } from '@medplum/fhirtypes';
+
+indexStructureDefinitionBundle(readJson('fhir/r4/profiles-types.json') as Bundle);
+indexStructureDefinitionBundle(readJson('fhir/r4/profiles-resources.json') as Bundle);
+indexStructureDefinitionBundle(readJson('fhir/r4/profiles-medplum.json') as Bundle);
+```
 
 ## Requirements
 
@@ -54,5 +67,7 @@ export default mergeConfig(
   })
 );
 ```
+
+Both are required. `globalSetup` alone builds the index in a process the tests never see; `setupFiles` alone has nothing to inject.
 
 `test.setup.ts` imports `beforeAll` and `inject` explicitly, so it works whether or not `test.globals` is enabled.
