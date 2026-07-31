@@ -19,6 +19,16 @@ A collection of reusable code snippets and components for Medplum projects.
 1. Copy the desired snippet folder into your project
 2. Install required dependencies
 
+## Development
+
+```bash
+npm install
+npm test        # vitest run
+npm run test:watch
+```
+
+Tests run against the FHIR schema setup in [TestSetup](TestSetup), wired up in `vitest.config.js`.
+
 ## Contributing
 
 Feel free to submit PRs to add new snippets or improve existing ones.
