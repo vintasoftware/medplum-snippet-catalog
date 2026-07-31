@@ -58,6 +58,12 @@ The suite was checked by mutation rather than just by passing:
 
 Verified on Vitest 3.2.7 with `pool: 'forks'` and `pool: 'threads'`, `isolate` both true and false.
 
+### Multiple workers
+
+Per-worker coverage comes for free from the file layout. Under the default `isolate: true`, Vitest gives **every test file its own worker process**, so the three files above are three independent verifications that `inject` landed in a fresh worker. Measured with an 8-file instrumented run on a 10-core machine: 8 distinct workers, up to 6 running concurrently, all green.
+
+Worth knowing when reasoning about this: `isolate: true` spawns a fresh worker per file *regardless* of `maxWorkers`. Even `--maxWorkers=1` produces one process per file — they just run one after another instead of in parallel. So a distinct-worker count says nothing about concurrency on its own.
+
 ## Requirements
 
 - Vitest 3+ (`TestProject` and `project.provide` come from `vitest/node`).
